@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+      - HTTP_PROXY = 127.0.0.1:9000
+      - HTTPS_PROXY = 127.0.0.1:9000
+      - NO_PROXY = .s3.localhost.localstack.cloud,127.0.0.1,*.localhost
+
+      # Add your environment variables here
+      - SI_BACKEND_HOST=backend
+      - SI_BACKEND_PORT=8081
+      - SI_AWS_S3BUCKET=ebi-bucket
+      - SI_ISCAN_BYPASS=true
+      - LOCALSTACK_ENDPOINT=http://localstack:4566
+      - LOCALSTACK_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCESS_KEY_ID=test
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
